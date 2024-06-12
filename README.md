@@ -30,6 +30,19 @@ For example, a book move of type `Reader::BookMove` called `book_move` can be us
 
 Or you can just call `Reader::ConvertBookMoveToUci(book_move)` and automatically convert a move to the UCI format
 
+## :abc: Code example
+```
+Reader::Book book;
+book.Load("book.bin");
+chess::Board board = chess::Board();
+board.makeMove("e2e4");
+board.makeMove("e7e5");
+Reader::BookMoves book_moves = book.GetBookMoves((uint64_t)board.zobrist());
+std::cout << Reader::ConvertBookMoveToUci(Reader::RandomBookMove(book_moves)) << std::endl;
+book.Clear();
+```
+**OUTPUT:** `g1f3`
+
 ## :computer: How to help?
 Please suggest improvements to the library.
 I have done my best to eradicate all _known_ bugs from the code. However, if you feel you have found a potential bug, please open a pull request.
