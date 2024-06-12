@@ -13,6 +13,8 @@ A Chess Opening Book reader that supports Polyglot books of the .bin format. The
 ## :grey_question: How to use it?
 This is a single header library. Just download `reader.hpp` or copy the source code.
 
+**NOTE:** It is assumed that you have implemented _proper_ zobrist hashing in your code. If not, it is recommended you do that first, since it is required to access book moves. 
+
 ## :checkered_flag: How to use the book moves in your project?
 The book moves are returned in a single format.
 For example, a book move of type `Reader::BookMove` called `book_move` can be used as follows:
