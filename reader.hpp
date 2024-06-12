@@ -45,9 +45,9 @@ namespace Reader {
         uint32_t learn;
     };
 
-    long int num_entries = 0;
+    static long int num_entries = 0;
 
-    EntryStruct* entries;
+    static EntryStruct* entries;
 
     struct BookMove {
         uint8_t toFile = 0;
@@ -59,13 +59,13 @@ namespace Reader {
 
     typedef std::vector<BookMove> BookMoves;
 
-    std::string Files[8] = {"a", "b", "c", "d", "e", "f", "g", "h"};
-    std::string Rows[8] = {"1", "2", "3", "4", "5", "6", "7", "8"};
+    static std::string Files[8] = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    static std::string Rows[8] = {"1", "2", "3", "4", "5", "6", "7", "8"};
 
     // @brief Convert book move to UCI Format
     // @param move Book move
     // @return UCI move string
-    std::string ConvertBookMoveToUci(BookMove move) {
+    static std::string ConvertBookMoveToUci(BookMove move) {
         std::string move_string = "";
         move_string += Files[move.fromFile];
         move_string += Rows[move.fromRow];
@@ -80,7 +80,7 @@ namespace Reader {
     // @brief Get random book move from book moves
     // @param book_moves Vector with book moves
     // @return Random book move
-    BookMove RandomBookMove(BookMoves book_moves) {
+    static BookMove RandomBookMove(BookMoves book_moves) {
         std::vector<BookMove> move;
         size_t nelems = 1;
         std::sample(
@@ -137,12 +137,12 @@ namespace Reader {
         // @param key Zobrist key
         // @param minimum_weight Minimum weight of book moves to be returned (default 0)
         // @return Vector with the book moves (toFile, toRow, fromFile, fromRow, promotion, weight)
-        std::vector<BookMove> GetBookMoves(uint64_t key, uint16_t minimum_weight=0) {
+        BookMoves GetBookMoves(uint64_t key, uint16_t minimum_weight=0) {
             EntryStruct *entry;
             uint16_t move;
             BookMove book_move;
             underlying u;
-            std::vector<BookMove> BookMoves;
+            BookMoves bookMoves;
             for (entry=entries; entry<entries+num_entries; entry++) {
                 if (u.endian_swap_u64(entry->key) == key && u.endian_swap_u16(entry->weight) >= minimum_weight) {
                     move = u.endian_swap_u16(entry->move);
@@ -151,10 +151,10 @@ namespace Reader {
                     book_move.toFile = ((move>>0) & 7);
                     book_move.toRow = ((move>>3) & 7);  
                     book_move.promotion = ((move>>12) & 7); 
-                    BookMoves.push_back(book_move);
+                    bookMoves.push_back(book_move);
                 }
             }
-            return BookMoves;
+            return bookMoves;
         }
 
         // @brief Search book for key. Unlike GetBookMoves(), which only returns the book moves, SearchBook()
@@ -162,13 +162,13 @@ namespace Reader {
         // @param key Zobrist key
         // @param minimum_weight Minimum weight of book moves to be returned (default 0)
         // @return Vector with the book entries (move, weight, learn)
-        std::vector<BookEntry> SearchBook(uint64_t key, uint16_t minimum_weight=0) {
+        BookEntries SearchBook(uint64_t key, uint16_t minimum_weight=0) {
             EntryStruct *entry;
             uint16_t move;
             BookMove book_move;
             underlying u;
             BookEntry book_entry;
-            std::vector<BookEntry> BookEntries;
+            BookEntries bookEntries;
             for (entry=entries; entry<entries+num_entries; entry++) {
                 if (u.endian_swap_u64(entry->key) == key && u.endian_swap_u16(entry->weight) >= minimum_weight) {
                     move = u.endian_swap_u16(entry->move);
@@ -180,10 +180,10 @@ namespace Reader {
                     book_entry.move = book_move;
                     book_entry.weight = u.endian_swap_u16(entry->weight);
                     book_entry.learn = u.endian_swap_u32(entry->learn);
-                    BookEntries.push_back(book_entry);
+                    bookEntries.push_back(book_entry);
                 }
             }
-            return BookEntries;
+            return bookEntries;
         }  
         
         // @brief Clear book from memory
